@@ -5,6 +5,7 @@ class RequestAnalysis(object):
         self.app = app
 
     def __call__(self, environ, start_response):
+
         print(environ.get('REQUEST_METHOD'))
         print(environ.get('PATH_INFO'))
         print(environ.get('QUERY_STRING'))
@@ -15,4 +16,3 @@ class RequestAnalysis(object):
             return start_response(status, headers, exc_info)
 
         return self.app(environ, demo_start_response)
-
