@@ -6,4 +6,5 @@ class RequestAnalysis(object):
 
     def __call__(self, environ, start_response):
         print("middleware install testing")
+        print("hello")
         return self.app(environ, start_response)
