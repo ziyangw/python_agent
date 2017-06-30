@@ -7,7 +7,6 @@ def agent_init():
     def counting(fn):
         def wrapper(*args, **kwargs):
             wrapper.called += 1
-            print(wrapper.called)
             return fn(*args, **kwargs)
         wrapper.called = 0
         wrapper.__name__ = fn.__name__
@@ -33,12 +32,13 @@ class RequestAnalysis(object):
 
         def response_analysis(status, headers, exc_info=None):
             response_environ = locals()
-            print("---------------")
-            print("String objects from request that are garbage collected: ")
+            # print("---------------")
+            # print("String objects from request that are garbage collected: ")
             # RequestAnalysis.compute_diff(request_environ, response_environ)
-            print("String objects created between request and response: ")
+            # print("String objects created between request and response: ")
             # RequestAnalysis.compute_diff(response_environ, request_environ)
-            print("---------------")
+            # print("---------------")
+            print("String objects created: %d" % str.called)
             str.called = 0
             return start_response(status, headers, exc_info)
 
