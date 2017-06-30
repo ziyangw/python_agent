@@ -1,18 +1,30 @@
+from urlparse import parse_qs
+from webob import Request
+
 
 class RequestAnalysis(object):
 
     def __init__(self, app):
         self.app = app
 
+    """
     def __call__(self, environ, start_response):
-
-        print(environ.get('REQUEST_METHOD'))
-        print(environ.get('PATH_INFO'))
+        try:
+            content = werkzeug.wsgi.get_input_stream(environ)
+            request_body = content.read()
+        except Exception, e:
+            print(str(e))
+            request_body = "0"
+        d = parse_qs(request_body)
         print(environ.get('QUERY_STRING'))
+        print("this is parsed body %s" % d)
 
-        def demo_start_response(status, headers, exc_info=None):
-            print(status)
-            headers.append(('DEMO', "DEMO"))
-            return start_response(status, headers, exc_info)
+        return self.app(environ, start_response)
+    """
 
-        return self.app(environ, demo_start_response)
+    def __call__(self, environ, start_response):
+        request = Request(environ)
+        request.make_body_seekable()
+        parsed_request = parse_qs(request.body)
+        print(parsed_request)
+        return self.app(environ, start_response)

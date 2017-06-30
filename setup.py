@@ -8,4 +8,7 @@ setup(name='python_agent',
       author_email=['ziyang.wang123@gmail.com', 'rachakondavinai@gmail.com'],
       license='MIT',
       packages=['python_agent', 'python_agent/agent'],
+      install_requires=[
+          'webob',
+      ],
       zip_safe=False)
