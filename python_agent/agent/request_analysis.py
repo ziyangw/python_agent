@@ -3,6 +3,21 @@ from webob import Request
 import os
 
 
+def agent_init():
+    def counting(fn):
+        def wrapper(*args, **kwargs):
+            wrapper.called += 1
+            print(wrapper.called)
+            return fn(*args, **kwargs)
+        wrapper.called = 0
+        wrapper.__name__ = fn.__name__
+        return wrapper
+    global str
+    str = counting(str)
+    str.__new__ = counting(str.__new__)
+    str.__init__ = counting(str.__init__)
+
+
 class RequestAnalysis(object):
 
     def __init__(self, app):
@@ -18,9 +33,9 @@ class RequestAnalysis(object):
             response_environ = locals()
             print("---------------")
             print("String objects from request that are garbage collected: ")
-            RequestAnalysis.compute_diff(request_environ, response_environ)
+            # RequestAnalysis.compute_diff(request_environ, response_environ)
             print("String objects created between request and response: ")
-            RequestAnalysis.compute_diff(response_environ, request_environ)
+            # RequestAnalysis.compute_diff(response_environ, request_environ)
             print("---------------")
             return start_response(status, headers, exc_info)
 
@@ -39,5 +54,8 @@ class RequestAnalysis(object):
         if not hasattr(diff, '__iter__') or type(diff) in [list, tuple, str, file]:
             print(key, diff)
         else:
-            for key in diff:
-                RequestAnalysis.iterate_print(key, diff[key])
+            try:
+                for key in diff:
+                    RequestAnalysis.iterate_print(key, diff[key])
+            except:
+                print(key, diff)
