@@ -1,3 +1,15 @@
 *.pyc
 /*.egg-info
 /*.egg
+
+# Exclude virtualenv files at project base
+.Python
+lib
+bin
+include
+pip-selfcheck.json
+env/
+
+
+.idea
+.DS_Store
