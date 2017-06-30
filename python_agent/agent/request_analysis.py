@@ -17,6 +17,8 @@ def agent_init():
     str.__new__ = counting(str.__new__)
     str.__init__ = counting(str.__init__)
 
+global agent_init
+agent_init()
 
 class RequestAnalysis(object):
 
@@ -37,6 +39,7 @@ class RequestAnalysis(object):
             print("String objects created between request and response: ")
             # RequestAnalysis.compute_diff(response_environ, request_environ)
             print("---------------")
+            str.called = 0
             return start_response(status, headers, exc_info)
 
         return self.app(environ, response_analysis)
