@@ -14,6 +14,7 @@ class RequestAnalysis(object):
         self.app = app
 
     def __call__(self, environ, start_response):
+        print("------Request Start------")
         start = time.time()
         request = Request(environ)
         request.make_body_seekable()
@@ -37,15 +38,14 @@ class RequestAnalysis(object):
                               'headers': headers})
             print("Response ID assigned: %s" % response_id)
             response_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-            print(dis.dis(parse_qs))
             end = time.time()
             total_time = end - start
             print("Total time taken: %s" % total_time)
             file.write("Time: %s \n" % str(total_time))
             mem_usage = memory_usage()
-
             print('Memory usage (in chunks of .1 seconds): %s' % mem_usage[0])
             memory_logger.write("Mem: %s \n" % str(mem_usage[0]))
+            print("------Request End------")
             return start_response(status, headers, exc_info)
 
         return self.app(environ, response_analysis)
