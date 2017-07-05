@@ -10,5 +10,7 @@ setup(name='python_agent',
       packages=['python_agent', 'python_agent/agent'],
       install_requires=[
           'webob',
+          'memory_profiler',
+          'psutil'
       ],
       zip_safe=False)
