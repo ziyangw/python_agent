@@ -16,6 +16,9 @@ class RequestAnalysis(object):
         request.make_body_seekable()
         parsed_request = parse_qs(request.body)
         request_environ = locals()
+        mem_usage1 = memory_usage()
+
+        memory_logger.write("Mem: %s \n" % str(mem_usage1[0]))
 
         def response_analysis(status, headers, exc_info=None):
             response_environ = locals()
@@ -36,10 +39,11 @@ class RequestAnalysis(object):
             total_time = end - start
             print(total_time)
             file.write("Time: %s \n" % str(total_time))
-            mem_usage = memory_usage()
+            mem_usage2 = memory_usage()
 
-            print('Memory usage (in chunks of .1 seconds): %s' % mem_usage[0])
-            memory_logger.write("Mem: %s \n" % str(mem_usage[0]))
+            # print('Memory usage (in chunks of .1 seconds): %s' % mem_usage2[0])
+            memory_logger.write("Mem: %s \n" % str(mem_usage2[0]))
+            print('Memory difference: %s' % str(mem_usage2[0] - mem_usage1[0]))
             return start_response(status, headers, exc_info)
 
         return self.app(environ, response_analysis)
