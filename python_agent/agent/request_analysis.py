@@ -1,12 +1,13 @@
 from urlparse import parse_qs
 from webob import Request
 from agent import *
+from helpers import *
 from memory_profiler import memory_usage
 import time
 import uuid
-import sys
-import inspect
 import dis
+import pstats
+import cProfile
 
 
 class RequestAnalysis(object):
@@ -20,8 +21,10 @@ class RequestAnalysis(object):
         request.make_body_seekable()
         parsed_request = parse_qs(request.body)
         request_environ = locals()
-        request_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
         request_mem_usage = memory_usage()
+        agent.profile = cProfile.Profile()
+        agent.profile.enable()
+        # gc.disable()
 
         def response_analysis(status, headers, exc_info=None):
             response_environ = locals()
@@ -38,7 +41,6 @@ class RequestAnalysis(object):
                 response_id, {'request_environ': environ, 'status': status,
                               'headers': headers})
             print("Response ID assigned: %s" % response_id)
-            response_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
             end = time.time()
             total_time = end - start
             print("Total time taken: %s" % total_time)
@@ -47,6 +49,10 @@ class RequestAnalysis(object):
             mem_used = response_mem_usage[0] - request_mem_usage[0]
             print('Memory used: %s' % str(mem_used))
             agent.memory_logger.write("Mem Used: %s \n" % str(mem_used))
+            agent.profile.disable()
+            print('Class loaded: %d' % count_loaded_class())
+            # pstats.Stats(agent.profile).sort_stats("filename").print_stats()
+            # print(pstats.Stats(agent.profile).strip_dirs().sort_stats("calls").__dict__)
             print("------Request End------")
             return start_response(status, headers, exc_info)
 
