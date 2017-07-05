@@ -1,5 +1,5 @@
 from response_holder import ResponseHolder
-
+import sys
 
 class Agent(object):
 
@@ -20,3 +20,4 @@ class Agent(object):
 global agent
 agent = Agent()
 file = open("times.txt","wb")
+memory_logger=open('memory_profiler.log','w+')
