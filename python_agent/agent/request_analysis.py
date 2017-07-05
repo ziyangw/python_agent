@@ -2,11 +2,7 @@ import os
 import uuid
 from urlparse import parse_qs
 from webob import Request
-from response_holder import ResponseHolder
-from agent import Agent
-
-global agent
-agent = Agent()
+from agent import *
 
 
 class RequestAnalysis(object):

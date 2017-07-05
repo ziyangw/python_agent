@@ -1,3 +1,6 @@
+from response_holder import ResponseHolder
+
+
 class Agent(object):
 
     def __init__(self):
@@ -13,3 +16,6 @@ class Agent(object):
         str.__init__ = counting(str.__init__)
         str.__new__ = counting(str.__new__)
         self.response_holder = ResponseHolder()
+
+global agent
+agent = Agent()
