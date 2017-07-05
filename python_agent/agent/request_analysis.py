@@ -3,6 +3,9 @@ from webob import Request
 from agent import *
 import time
 import uuid
+import sys
+import inspect
+import dis
 
 
 class RequestAnalysis(object):
@@ -15,6 +18,7 @@ class RequestAnalysis(object):
         request.make_body_seekable()
         parsed_request = parse_qs(request.body)
         request_environ = locals()
+        request_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
 
         def response_analysis(status, headers, exc_info=None):
             response_environ = locals()
@@ -31,9 +35,11 @@ class RequestAnalysis(object):
                 response_id, {'request_environ': environ, 'status': status,
                               'headers': headers})
             print("Response ID assigned: %s" % response_id)
+            response_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+            print(dis.dis(parse_qs))
             end = time.time()
             total_time = end - start
-            print(total_time)
+            print("Total time taken: %s" % total_time)
             file.write("Time: %s \n" % str(total_time))
             return start_response(status, headers, exc_info)
 
