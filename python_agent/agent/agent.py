@@ -17,9 +17,9 @@ class Agent(object):
         str.__init__ = counting(str.__init__)
         str.__new__ = counting(str.__new__)
         self.response_holder = ResponseHolder()
+        self.file = open("times.txt", "wb")
+        self.memory_logger = open('memory_profiler.log', 'w+')
 
 
 global agent
 agent = Agent()
-file = open("times.txt", "wb")
-memory_logger = open('memory_profiler.log', 'w+')
