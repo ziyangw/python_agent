@@ -1,9 +1,8 @@
-import os
-import uuid
 from urlparse import parse_qs
 from webob import Request
 from response_holder import ResponseHolder
-
+import time
+import uuid
 
 class Agent(object):
 
@@ -23,6 +22,7 @@ class Agent(object):
 
 global agent
 agent = Agent()
+file = open("testfile.txt","w")
 
 
 class RequestAnalysis(object):
@@ -31,6 +31,7 @@ class RequestAnalysis(object):
         self.app = app
 
     def __call__(self, environ, start_response):
+        start = time.time()
         request = Request(environ)
         request.make_body_seekable()
         parsed_request = parse_qs(request.body)
@@ -52,6 +53,9 @@ class RequestAnalysis(object):
             print("Response ID assigned: %s" % response_id)
             return start_response(status, headers, exc_info)
 
+        end = time.time()
+        total_time = end - start
+        file.write(str(total_time))
         return self.app(environ, response_analysis)
 
     @staticmethod
