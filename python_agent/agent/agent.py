@@ -19,4 +19,4 @@ class Agent(object):
 
 global agent
 agent = Agent()
-file = open("testfile.txt","w")
+file = open("times.txt","wb")

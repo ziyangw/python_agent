@@ -6,7 +6,6 @@ import uuid
 
 
 class RequestAnalysis(object):
-
     def __init__(self, app):
         self.app = app
 
@@ -29,13 +28,15 @@ class RequestAnalysis(object):
             str.called = 0
             response_id = str(uuid.uuid4())
             agent.response_holder.add(
-                response_id, {'request_environ': environ, 'status': status, 'headers': headers})
+                response_id, {'request_environ': environ, 'status': status,
+                              'headers': headers})
             print("Response ID assigned: %s" % response_id)
+            end = time.time()
+            total_time = end - start
+            print(total_time)
+            file.write("Time: %s \n" % str(total_time))
             return start_response(status, headers, exc_info)
 
-        end = time.time()
-        total_time = end - start
-        file.write(str(total_time))
         return self.app(environ, response_analysis)
 
     @staticmethod
@@ -48,7 +49,8 @@ class RequestAnalysis(object):
 
     @staticmethod
     def iterate_print(key, diff):
-        if not hasattr(diff, '__iter__') or type(diff) in [list, tuple, str, file]:
+        if not hasattr(diff, '__iter__') or type(diff) in [list, tuple, str,
+                                                           file]:
             print(key, diff)
         else:
             try:
