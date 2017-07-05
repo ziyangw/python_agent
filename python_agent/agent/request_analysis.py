@@ -1,23 +1,29 @@
+import os
+import uuid
 from urlparse import parse_qs
 from webob import Request
-import os
+from response_holder import ResponseHolder
 
 
-def agent_init():
-    def counting(fn):
-        def wrapper(*args, **kwargs):
-            wrapper.called += 1
-            return fn(*args, **kwargs)
-        wrapper.called = 0
-        wrapper.__name__ = fn.__name__
-        return wrapper
-    global str
-    str = counting(str)
-    str.__new__ = counting(str.__new__)
-    str.__init__ = counting(str.__init__)
+class Agent(object):
 
-global agent_init
-agent_init()
+    def __init__(self):
+        def counting(fn):
+            def wrapper(*args, **kwargs):
+                wrapper.called += 1
+                return fn(*args, **kwargs)
+            wrapper.called = 0
+            wrapper.__name__ = fn.__name__
+            return wrapper
+        global str
+        str = counting(str)
+        str.__init__ = counting(str.__init__)
+        str.__new__ = counting(str.__new__)
+        self.response_holder = ResponseHolder()
+
+global agent
+agent = Agent()
+
 
 class RequestAnalysis(object):
 
@@ -40,6 +46,10 @@ class RequestAnalysis(object):
             # print("---------------")
             print("String objects created: %d" % str.called)
             str.called = 0
+            response_id = str(uuid.uuid4())
+            agent.response_holder.add(
+                response_id, {'request_environ': environ, 'status': status, 'headers': headers})
+            print("Response ID assigned: %s" % response_id)
             return start_response(status, headers, exc_info)
 
         return self.app(environ, response_analysis)
