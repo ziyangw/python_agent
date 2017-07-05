@@ -1,7 +1,6 @@
 from urlparse import parse_qs
 from webob import Request
 from agent import *
-from memory_profiler import profile
 from memory_profiler import memory_usage
 import time
 import uuid
