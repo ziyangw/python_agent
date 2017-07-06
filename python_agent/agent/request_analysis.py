@@ -28,6 +28,7 @@ class RequestAnalysis(object):
 
         def response_analysis(status, headers, exc_info=None):
             response_environ = locals()
+            print(headers)
             # print("---------------")
             # print("String objects from request that are garbage collected: ")
             # RequestAnalysis.compute_diff(request_environ, response_environ)
