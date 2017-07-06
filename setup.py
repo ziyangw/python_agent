@@ -11,6 +11,7 @@ setup(name='python_agent',
       install_requires=[
           'webob',
           'memory_profiler',
-          'psutil'
+          'psutil',
+          'beautifulsoup4',
       ],
       zip_safe=False)
