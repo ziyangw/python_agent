@@ -32,7 +32,7 @@ class RequestAnalysis(object):
             request = Request(environ)
             request.make_body_seekable()
             parsed_request = parse_qs(request.body)
-            # print(request)
+            print(request)
             # print(parsed_request)
             # print("String objects from request that are garbage collected: ")
             # RequestAnalysis.compute_diff(request_environ, response_environ)
