@@ -28,7 +28,7 @@ class RequestAnalysis(object):
         def response_analysis(status, headers, exc_info=None):
 
             response_environ = locals()
-            print("---------------")
+            # print("---------------")
             request = Request(environ)
             request.make_body_seekable()
             parsed_request = parse_qs(request.body)
