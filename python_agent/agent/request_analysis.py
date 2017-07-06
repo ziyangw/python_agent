@@ -1,54 +1,34 @@
 from urlparse import parse_qs
 from webob import Request
 from agent import *
+from helpers import *
 from memory_profiler import memory_usage
-from django.shortcuts import render
-# from patch import *
 import time
 import uuid
 import sys
 import inspect
-from import_hooks import *
-
-
-def _render(original_execute, request, template_name, context=None, content_type=None,
-            status=None, using=None):
-    """
-    Returns a HttpResponse whose content is filled with the result of calling
-    django.template.loader.render_to_string() with the passed arguments.
-    """
-    print('hey!')
-    content = loader.render_to_string(template_name, context, request,
-                                      using=using)
-    return HttpResponse(content, content_type, status, context=context)
+import cProfile
 
 
 class RequestAnalysis(object):
     def __init__(self, app):
         self.app = app
-        render = _render
 
     def __call__(self, environ, start_response):
-        # print("------Request Start------")
+        print("------Request Start------")
         start = time.time()
         request = Request(environ)
         request.make_body_seekable()
         parsed_request = parse_qs(request.body)
         request_environ = locals()
-        request_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
         request_mem_usage = memory_usage()
-
-        # shortcut_modules = sys.modules['django.shortcuts']
-        # shortcut_modules.render = _render
-        # sys.modules['django.shortcuts'] = shortcut_modules
+        agent.profile = cProfile.Profile()
+        agent.profile.enable()
 
         def response_analysis(status, headers, exc_info=None):
-            # shortcut_modules = sys.modules['django.shortcuts']
-            # shortcut_modules.render = _render
-            # sys.modules['django.shortcuts'] = shortcut_modules
 
             response_environ = locals()
-            # print("---------------")
+            print("---------------")
             request = Request(environ)
             request.make_body_seekable()
             parsed_request = parse_qs(request.body)
@@ -65,8 +45,9 @@ class RequestAnalysis(object):
             agent.response_holder.add(
                 response_id, {'request_environ': environ, 'status': status,
                               'headers': headers})
-            # print("Response ID assigned: %s" % response_id)
+
             response_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+            print("Response ID assigned: %s" % response_id)
             end = time.time()
             total_time = end - start
             # print("Total time taken: %s" % total_time)
@@ -76,6 +57,11 @@ class RequestAnalysis(object):
             # print('Memory used: %s' % str(mem_used))
             agent.memory_logger.write("Mem Used: %s \n" % str(mem_used))
             # print("------Request End------")
+            agent.profile.disable()
+            print('Class loaded: %d' % count_loaded_class())
+            # pstats.Stats(agent.profile).sort_stats("filename").print_stats()
+            # print(pstats.Stats(agent.profile).strip_dirs().sort_stats("calls").__dict__)
+            print("------Request End------")
             return start_response(status, headers, exc_info)
 
         return self.app(environ, response_analysis)
