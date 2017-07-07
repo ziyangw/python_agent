@@ -9,6 +9,7 @@ import uuid
 import sys
 import inspect
 import cProfile
+from bs4 import BeautifulSoup
 
 
 class RequestAnalysis(object):
@@ -32,7 +33,12 @@ class RequestAnalysis(object):
             ast_response_start()
             response_environ = locals()
             # print("---------------")
-            print(environ['my_template'])
+            html = environ['my_template']
+            html = "".join(line.strip() for line in html.split("\n"))
+            soup = BeautifulSoup(html, "html.parser")
+            [x.extract() for x in soup.findAll('script')]
+            string_on_template = soup.findAll(text=True)
+            print("String on template: %d"% len(string_on_template))
             request = Request(environ)
             request.accept += 'text/html'
             request.make_body_seekable()
@@ -46,12 +52,9 @@ class RequestAnalysis(object):
             # print("---------------")
             # print("String objects created: %d" % (STR_FUNCTION_CALL_COUNTER+STR_ASSIGN_COUNTER))
             str.called = 0
-            response_id = str(uuid.uuid4())
-            agent.response_holder.add(
-                response_id, {'request_environ': environ, 'status': status,
-                              'headers': headers})
 
             response_cls = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+            response_id = str(uuid.uuid4())
             print("Response ID assigned: %s" % response_id)
             end = time.time()
             total_time = end - start
@@ -66,6 +69,13 @@ class RequestAnalysis(object):
             # print('Class loaded: %d' % count_loaded_class())
             # pstats.Stats(agent.profile).sort_stats("filename").print_stats()
             # print(pstats.Stats(agent.profile).strip_dirs().sort_stats("calls").__dict__)
+            agent.response_holder.add(
+                response_id, {'status': status,
+                              'headers': headers, 'time': total_time,
+                              'string_generated': ast_response_start(),
+                              'string_on_template': len(string_on_template),
+                              'mem_used': mem_used,
+                              'class_loaded': ast_class_load()})
             print("------Request End------")
             response = Response()
             response.body = request.body

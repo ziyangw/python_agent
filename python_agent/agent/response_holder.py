@@ -1,3 +1,5 @@
+import json
+
 
 class ResponseHolder(object):
 
@@ -8,4 +10,9 @@ class ResponseHolder(object):
         if id in self.responses:
             raise Exception("Id Not Unique")
         else:
+            self.save(id, response)
             self.responses[id] = response
+
+    def save(self, id, response):
+        with open('data.txt', 'a') as outfile:
+            json.dump({id: response}, outfile)

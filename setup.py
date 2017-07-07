@@ -12,6 +12,7 @@ setup(name='python_agent',
           'webob',
           'memory_profiler',
           'psutil',
-          'matplotlib'
+          'matplotlib',
+          'beautifulsoup4'
       ],
       zip_safe=False)

@@ -35,6 +35,12 @@ def ast_request_start():
 def ast_response_start():
     global STR_FUNCTION_CALL_COUNTER, STR_ASSIGN_COUNTER
     print("String objects created: %d" % (STR_FUNCTION_CALL_COUNTER+STR_ASSIGN_COUNTER))
+    return STR_FUNCTION_CALL_COUNTER+STR_ASSIGN_COUNTER
+
+
+def ast_class_load():
+    global CLASS_LOADED_COUNT
+    return CLASS_LOADED_COUNT
 
 
 def str_function_call(args):
