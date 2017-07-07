@@ -3,7 +3,7 @@ import sys
 from types import ModuleType
 from django_rewrites import _render
 from django_rewrites import httpResponse__init__
-
+from django_rewrites import __call__
 
 class DummyModule(ModuleType):
     def __getattr__(self, key):
@@ -40,6 +40,12 @@ class ImportHooks(object):
             module = imp.load_module(name, *module_info)
             module.HttpResponseBase.init = httpResponse__init__
 
+        elif name == "django.core.handlers.wsgi":
+            name = 'wsgi'
+            module_info = imp.find_module(name, self.path)
+            module = imp.load_module(name, *module_info)
+            # module.WSGIHandler.__call__ = __call__
+
         else:
             module_info = imp.find_module(name, self.path)
             module = imp.load_module(name, *module_info)
@@ -47,4 +53,4 @@ class ImportHooks(object):
         return module
 
 
-sys.meta_path.append(ImportHooks('django.shortcuts', 'django.http'))
+sys.meta_path.append(ImportHooks('django.shortcuts', 'django.http', 'django.core.handlers.wsgi'))

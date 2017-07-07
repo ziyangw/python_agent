@@ -2,7 +2,9 @@ from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.http.cookie import SimpleCookie
-
+from django.urls import set_script_prefix
+from django.core import signals
+from django.utils.encoding import force_str
 
 def _render(request, template_name, context=None, content_type=None,
             status=None, using=None):
@@ -44,3 +46,22 @@ def httpResponse__init__(self, content_type=None, status=None, reason=None,
         content_type = '%s; charset=%s' % (settings.DEFAULT_CONTENT_TYPE,
                                            self.charset)
     self['Content-Type'] = content_type
+
+
+def __call__(self, environ, start_response):
+    set_script_prefix(get_script_name(environ))
+    signals.request_started.send(sender=self.__class__, environ=environ)
+    request = self.request_class(environ)
+    response = self.get_response(request)
+    environ['content'] = response.content
+    response._handler_class = self.__class__
+
+    status = '%d %s' % (response.status_code, response.reason_phrase)
+    response_headers = [(str(k), str(v)) for k, v in response.items()]
+    for c in response.cookies.values():
+        response_headers.append((str('Set-Cookie'), str(c.output(header=''))))
+    start_response(force_str(status), response_headers)
+    if getattr(response, 'file_to_stream', None) is not None and environ.get(
+            'wsgi.file_wrapper'):
+        response = environ['wsgi.file_wrapper'](response.file_to_stream)
+    return response

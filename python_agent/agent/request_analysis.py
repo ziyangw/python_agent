@@ -1,5 +1,5 @@
 from urlparse import parse_qs
-from webob import Request
+from webob import Request, Response
 from agent import *
 from helpers import *
 from memory_profiler import memory_usage
@@ -18,6 +18,7 @@ class RequestAnalysis(object):
         print("------Request Start------")
         start = time.time()
         request = Request(environ)
+        request.accept += 'text/html'
         request.make_body_seekable()
         parsed_request = parse_qs(request.body)
         request_environ = locals()
@@ -30,6 +31,7 @@ class RequestAnalysis(object):
             response_environ = locals()
             # print("---------------")
             request = Request(environ)
+            request.accept += 'text/html'
             request.make_body_seekable()
             parsed_request = parse_qs(request.body)
             print(request)
@@ -62,6 +64,9 @@ class RequestAnalysis(object):
             # pstats.Stats(agent.profile).sort_stats("filename").print_stats()
             # print(pstats.Stats(agent.profile).strip_dirs().sort_stats("calls").__dict__)
             print("------Request End------")
+            response = Response()
+            response.body = request.body
+            # return response(environ, start_response)
             return start_response(status, headers, exc_info)
 
         return self.app(environ, response_analysis)
