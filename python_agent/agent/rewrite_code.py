@@ -64,6 +64,18 @@ class RewriteCode(NodeTransformer):
             return new_node
         return node
 
+    def visit_BinOp(self, node):
+        self.generic_visit(node)
+        if isinstance(node.op, Mod):
+            new_node = Call(func=Name(id='str_interpolate', ctx=Load()),
+                            args=[node.left, node.right],
+                            keywords=[], starargs=None, kwargs=None)
+            copy_location(new_node, node)
+            fix_missing_locations(new_node)
+            return new_node
+        else:
+            return node
+
     def visit_Import(self, node):
         self.generic_visit(node)
         name = node.names[0].name

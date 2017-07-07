@@ -48,6 +48,11 @@ def str_function_call(args):
         raise
 
 
+def str_interpolate(left, right):
+    print("string interpolation %s with %s" % (left, right))
+    return left % right
+
+
 def str_assign(value):
     global STR_ASSIGN_COUNTER
     STR_ASSIGN_COUNTER += 1
