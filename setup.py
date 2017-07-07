@@ -5,12 +5,13 @@ setup(name='python_agent',
       description='Python Agent created by Ziyang and Vinai',
       url='https://github.com/ziyangw/python_agent',
       author=['Vinai Rachakonda', 'Ziyang Wang'],
-      author_email=['ziyang.wang123@gmail.com', 'rachakondavinai@gmail.com'],
+      author_email=['rachakondavinai@gmail.com', 'ziyang.wang123@gmail.com'],
       license='MIT',
       packages=['python_agent', 'python_agent/agent'],
       install_requires=[
           'webob',
           'memory_profiler',
           'psutil',
+          'matplotlib'
       ],
       zip_safe=False)

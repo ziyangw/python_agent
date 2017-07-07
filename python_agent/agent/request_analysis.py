@@ -32,6 +32,7 @@ class RequestAnalysis(object):
             ast_response_start()
             response_environ = locals()
             # print("---------------")
+            print(environ['my_template'])
             request = Request(environ)
             request.accept += 'text/html'
             request.make_body_seekable()
@@ -55,11 +56,11 @@ class RequestAnalysis(object):
             end = time.time()
             total_time = end - start
             print("Total time taken: %s" % total_time)
-            agent.file.write("Time: %s \n" % str(total_time))
+            agent.file.write("%s \n" % str(total_time))
             response_mem_usage = memory_usage()
             mem_used = response_mem_usage[0] - request_mem_usage[0]
             print('Memory used: %s' % str(mem_used))
-            agent.memory_logger.write("Mem Used: %s \n" % str(mem_used))
+            agent.memory_logger.write("%s \n" % str(mem_used))
             # print("------Request End------")
             agent.profile.disable()
             # print('Class loaded: %d' % count_loaded_class())
@@ -69,6 +70,8 @@ class RequestAnalysis(object):
             response = Response()
             response.body = request.body
             # return response(environ, start_response)
+            split = status.split(" ")
+            status = split[0] + " "
             return start_response(status, headers, exc_info)
 
         return self.app(environ, response_analysis)

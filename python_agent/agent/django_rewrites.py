@@ -9,6 +9,7 @@ import re
 from django.utils.encoding import (
     force_str, force_text, repercent_broken_unicode,
 )
+
 ISO_8859_1, UTF_8 = str('iso-8859-1'), str('utf-8')
 _slashes_re = re.compile(br'/+')
 
@@ -54,6 +55,7 @@ def httpResponse__init__(self, content_type=None, status=None, reason=None,
                                            self.charset)
     self['Content-Type'] = content_type
 
+
 def get_bytes_from_wsgi(environ, key, default):
     """
     Get a value from the WSGI environ dictionary as bytes.
@@ -66,6 +68,7 @@ def get_bytes_from_wsgi(environ, key, default):
     # decoded with ISO-8859-1. This is wrong for Django websites where UTF-8
     # is the default. Re-encode to recover the original bytestring.
     return value.encode(ISO_8859_1) if six.PY3 else value
+
 
 def get_script_name(environ):
     """
@@ -99,12 +102,16 @@ def get_script_name(environ):
 
     return script_name.decode(UTF_8)
 
+
 def __call__(self, environ, start_response):
     set_script_prefix(get_script_name(environ))
     signals.request_started.send(sender=self.__class__, environ=environ)
     request = self.request_class(environ)
     response = self.get_response(request)
-    environ['content'] = response.content
+    try:
+        environ['my_template'] = response.content
+    except:
+        environ['my_template'] = ""
     response._handler_class = self.__class__
 
     status = '%d %s' % (response.status_code, response.reason_phrase)
