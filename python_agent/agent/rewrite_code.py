@@ -6,7 +6,6 @@ import itertools
 
 
 class RewriteCode(NodeTransformer):
-
     def __init__(self, filename):
         self.filename = filename
         self.enter_linenos = {}
@@ -91,7 +90,9 @@ class RewriteCode(NodeTransformer):
                                    args=[Str(s=inline_name)], keywords=[],
                                    starargs=None, kwargs=None)],
                         keywords=[], starargs=None, kwargs=None)
-        if_node = If(test=Num(n=1), body=[node, If(test=is_class, body=[new_node], orelse=[])], orelse=[])
+        if_node = If(test=Num(n=1), body=[node,
+                                          If(test=is_class, body=[new_node],
+                                             orelse=[])], orelse=[])
         copy_location(if_node, node)
         fix_missing_locations(if_node)
         return if_node
@@ -109,17 +110,35 @@ class RewriteCode(NodeTransformer):
             asname = inline_name = node.names[0].asname
         module = "." if node.module is None else node.module
         new_node = Expr(value=Call(func=Name(id='fromimport_name', ctx=Load()),
-                                   args=[Str(s=module), Str(s=name), Str(s=asname)],
+                                   args=[Str(s=module), Str(s=name),
+                                         Str(s=asname)],
                                    keywords=[], starargs=None, kwargs=None))
         is_class = Call(func=Name(id='isclass', ctx=Load()),
                         args=[Call(func=Name(id='eval', ctx=Load()),
                                    args=[Str(s=inline_name)], keywords=[],
                                    starargs=None, kwargs=None)],
                         keywords=[], starargs=None, kwargs=None)
-        if_node = If(test=Num(n=1), body=[node, If(test=is_class, body=[new_node], orelse=[])], orelse=[])
+        if_node = If(test=Num(n=1), body=[node,
+                                          If(test=is_class, body=[new_node],
+                                             orelse=[])], orelse=[])
         copy_location(if_node, node)
         fix_missing_locations(if_node)
         return if_node
+
+    def visit_ClassDef(self, node):
+        if node.name == "WSGIHandler":
+            for fun in node.body:
+                if isinstance(fun, FunctionDef) and fun.name == '__call__':
+                    new_line = Assign(targets=[
+                        Subscript(value=Name(id="environ", ctx=Load()),
+                                  slice=Index(value=Str(s="content"),
+                                              ctx=Store()))],
+                        value=Name(id="response.content",
+                                   ctx=Load()))
+                    fun.body = [new_line] + fun.body
+                    return node
+        else:
+            return node
 
 
 old_compile = __builtin__.compile
@@ -128,12 +147,13 @@ old_compile = __builtin__.compile
 def compile(source, filename, mode, flags=0):
     if flags == PyCF_ONLY_AST:
         return old_compile(source, filename, mode, flags)
-    assert(mode == "exec")
+    assert (mode == "exec")
     code = open(filename).read()
     tree = parse(code, filename)
     tree = RewriteCode(filename).visit(tree)
     code = old_compile(tree, filename, "exec")
     return code
+
 
 __builtin__.compile = compile
 
