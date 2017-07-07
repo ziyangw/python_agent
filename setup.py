@@ -7,7 +7,7 @@ setup(name='python_agent',
       author=['Vinai Rachakonda', 'Ziyang Wang'],
       author_email=['rachakondavinai@gmail.com', 'ziyang.wang123@gmail.com'],
       license='MIT',
-      packages=['python_agent', 'python_agent/agent'],
+      packages=['python_agent', 'python_agent/agent', 'python_agent/analysis'],
       install_requires=[
           'webob',
           'memory_profiler',

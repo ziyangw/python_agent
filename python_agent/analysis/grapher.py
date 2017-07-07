@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import sys
-times_files = sys.argv[0]
-with open(times_files) as f:
-    times = [line.rstrip('\n') for line in open('filename')]
+file = sys.argv[1]
+with open(file) as f:
+    nums = [line.rstrip('\n') for line in f]
 
-plt.plot(times)
-plt.ylabel('ms')
+plt.plot(nums)
 plt.show()
