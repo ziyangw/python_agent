@@ -3,6 +3,7 @@ from webob import Request
 from agent import *
 from helpers import *
 from memory_profiler import memory_usage
+from ..ast_import import *
 import time
 import uuid
 import sys
@@ -16,6 +17,7 @@ class RequestAnalysis(object):
 
     def __call__(self, environ, start_response):
         print("------Request Start------")
+        ast_request_start()
         start = time.time()
         request = Request(environ)
         request.make_body_seekable()
@@ -26,7 +28,7 @@ class RequestAnalysis(object):
         agent.profile.enable()
 
         def response_analysis(status, headers, exc_info=None):
-
+            ast_response_start()
             response_environ = locals()
             # print("---------------")
             request = Request(environ)
@@ -39,7 +41,7 @@ class RequestAnalysis(object):
             # print("String objects created between request and response: ")
             # RequestAnalysis.compute_diff(response_environ, request_environ)
             # print("---------------")
-            # print("String objects created: %d" % str.called)
+            # print("String objects created: %d" % (STR_FUNCTION_CALL_COUNTER+STR_ASSIGN_COUNTER))
             str.called = 0
             response_id = str(uuid.uuid4())
             agent.response_holder.add(
@@ -50,15 +52,15 @@ class RequestAnalysis(object):
             print("Response ID assigned: %s" % response_id)
             end = time.time()
             total_time = end - start
-            # print("Total time taken: %s" % total_time)
+            print("Total time taken: %s" % total_time)
             agent.file.write("Time: %s \n" % str(total_time))
             response_mem_usage = memory_usage()
             mem_used = response_mem_usage[0] - request_mem_usage[0]
-            # print('Memory used: %s' % str(mem_used))
+            print('Memory used: %s' % str(mem_used))
             agent.memory_logger.write("Mem Used: %s \n" % str(mem_used))
             # print("------Request End------")
             agent.profile.disable()
-            print('Class loaded: %d' % count_loaded_class())
+            # print('Class loaded: %d' % count_loaded_class())
             # pstats.Stats(agent.profile).sort_stats("filename").print_stats()
             # print(pstats.Stats(agent.profile).strip_dirs().sort_stats("calls").__dict__)
             print("------Request End------")
