@@ -18,8 +18,7 @@ class RewriteCode(NodeTransformer):
         body_rest = []
         for node in module_node.body:
             node = self.visit(node)
-            if (not body_rest and isinstance(node, ImportFrom) and
-                node.module == "__future__"):
+            if (isinstance(node, ImportFrom) and node.module == "__future__"):
                 body_future.append(node)
             else:
                 body_rest.append(node)
