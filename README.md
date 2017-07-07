@@ -15,3 +15,14 @@ python <path_to_rewrite_code.py> <path_to_application>
 ```
 Then run the app
 
+# Graphing
+
+If you want to quickly see a graph of memory usage or time per request run the following
+
+```
+python <path_to_analysis/grapher.py> ./times.log
+```
+or
+```
+python <path_to_analysis/grapher.py> ./memory_profiler.log
+```
