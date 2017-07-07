@@ -2,11 +2,15 @@ import imp
 import sys
 from types import ModuleType
 from django_rewrites import _render
+from django_rewrites import httpResponse__init__
+
 
 class DummyModule(ModuleType):
     def __getattr__(self, key):
         return None
-    __all__ = []   # support wildcard imports
+
+    __all__ = []  # support wildcard imports
+
 
 class ImportHooks(object):
     def __init__(self, *args):
@@ -29,10 +33,18 @@ class ImportHooks(object):
             module_info = imp.find_module(name, self.path)
             module = imp.load_module(name, *module_info)
             module.render = _render
+
+        elif name == "django.http":
+            name = 'http'
+            module_info = imp.find_module(name, self.path)
+            module = imp.load_module(name, *module_info)
+            module.HttpResponseBase.init = httpResponse__init__
+
         else:
             module_info = imp.find_module(name, self.path)
             module = imp.load_module(name, *module_info)
             sys.modules[name] = module
         return module
 
-sys.meta_path.append(ImportHooks('django.shortcuts'))
+
+sys.meta_path.append(ImportHooks('django.shortcuts', 'django.http'))
